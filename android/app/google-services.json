@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "28747625167",
+    "project_id": "rota-limpa-gps",
+    "storage_bucket": "rota-limpa-gps.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28747625167:android:6e8b4a07b3e89987b4fdba",
+        "android_client_info": {
+          "package_name": "com.example.coleta_gps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDedjeDsdM09l8AKSq2nzdVw6_2k66xxJU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
