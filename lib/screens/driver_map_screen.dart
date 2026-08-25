@@ -5,26 +5,43 @@ import '../services/route_service.dart';
 import '../utils/app_colors.dart';
 import 'route_map_screen.dart';
 
-class DriverMapScreen extends StatelessWidget {
+/// Carrega a rota uma única vez por abertura desta tela.
+///
+/// Antes, o Future era criado dentro do build. Qualquer rebuild iniciava uma
+/// nova busca e podia desmontar/remontar o RouteMapScreen e o GoogleMap.
+class DriverMapScreen extends StatefulWidget {
   final String? emailUsuario;
   final RouteService routeService;
 
   DriverMapScreen({super.key, this.emailUsuario, RouteService? routeService})
-    : routeService = routeService ?? RouteService();
+      : routeService = routeService ?? RouteService();
 
-  Future<CollectionRouteModel> carregarRota(String email) async {
-    return routeService.buscarRotaPorEmail(email);
+  @override
+  State<DriverMapScreen> createState() => _DriverMapScreenState();
+}
+
+class _DriverMapScreenState extends State<DriverMapScreen> {
+  Future<CollectionRouteModel>? _rotaFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ModalRoute só está disponível depois de initState. A proteção evita que
+    // mudanças de dependências executem uma segunda consulta ao Firestore.
+    _rotaFuture ??= widget.routeService.buscarRotaPorEmail(_emailDaRota());
+  }
+
+  String _emailDaRota() {
+    final dados =
+    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    return widget.emailUsuario ?? dados?['email']?.toString() ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
-    final dados =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-    final String email = emailUsuario ?? dados?['email'] ?? '';
-
     return FutureBuilder<CollectionRouteModel>(
-      future: carregarRota(email),
+      future: _rotaFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -50,7 +67,6 @@ class DriverMapScreen extends StatelessWidget {
         }
 
         final rotaDoUsuario = snapshot.data;
-
         if (rotaDoUsuario == null) {
           return const Scaffold(
             body: Center(child: Text('Nenhuma rota encontrada.')),

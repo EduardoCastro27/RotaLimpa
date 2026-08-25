@@ -19,33 +19,50 @@ class AppWidget extends StatelessWidget {
     return MaterialApp(
       title: 'Rota Limpa',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
+
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           centerTitle: true,
         ),
+
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 14,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
       ),
+
       home: const AuthCheckScreen(),
+
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
+
         AppRoutes.home: (context) => const HomeScreen(),
+
         AppRoutes.weeklyRoutes: (context) => WeeklyRoutesScreen(),
+
         AppRoutes.routeMap: (context) => const RouteMapScreen(),
+
         AppRoutes.routeReport: (context) => const RouteReportScreen(),
+
+        // IMPORTANTE:
+        // Esta tela recebe o e-mail enviado pelo AuthCheckScreen
+        // e busca a rota do motorista.
         AppRoutes.driverMap: (context) => DriverMapScreen(),
+
         AppRoutes.routeHistory: (context) => const RouteHistoryScreen(),
       },
     );

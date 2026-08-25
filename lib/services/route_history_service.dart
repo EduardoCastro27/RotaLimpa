@@ -1,37 +1,62 @@
-import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/route_history_model.dart';
 
 class RouteHistoryService {
-  static const String _key = 'route_history';
+  RouteHistoryService();
 
-  const RouteHistoryService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  CollectionReference<Map<String, dynamic>> get _historicoCollection {
+    final usuario = _auth.currentUser;
+
+    if (usuario == null) {
+      throw Exception('Usuário não autenticado.');
+    }
+
+    return _firestore
+        .collection('usuarios')
+        .doc(usuario.uid)
+        .collection('historico_rotas');
+  }
 
   Future<List<RouteHistoryModel>> listarHistorico() async {
-    final prefs = await SharedPreferences.getInstance();
+    final snapshot = await _historicoCollection
+        .orderBy('dataFinalizacao', descending: false)
+        .get();
 
-    final dadosSalvos = prefs.getStringList(_key) ?? [];
+    return snapshot.docs.map((doc) {
+      final dados = doc.data();
 
-    return dadosSalvos.map((item) {
-      final map = jsonDecode(item) as Map<String, dynamic>;
-      return RouteHistoryModel.fromMap(map);
+      return RouteHistoryModel.fromMap({
+        ...dados,
+        'id': doc.id,
+      });
     }).toList();
   }
 
   Future<void> salvarHistorico(RouteHistoryModel historico) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final historicoAtual = prefs.getStringList(_key) ?? [];
-
-    historicoAtual.add(jsonEncode(historico.toMap()));
-
-    await prefs.setStringList(_key, historicoAtual);
+    await _historicoCollection.doc(historico.id).set({
+      ...historico.toMap(),
+      'dataFinalizacao': Timestamp.fromDate(historico.dataFinalizacao),
+    });
   }
 
   Future<void> limparHistorico() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
+    final snapshot = await _historicoCollection.get();
+
+    if (snapshot.docs.isEmpty) {
+      return;
+    }
+
+    final batch = _firestore.batch();
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class RouteHistoryModel {
   final String id;
   final String rotaId;
@@ -48,6 +50,18 @@ class RouteHistoryModel {
   }
 
   factory RouteHistoryModel.fromMap(Map<String, dynamic> map) {
+    DateTime dataFinalizacao;
+
+    final data = map['dataFinalizacao'];
+
+    if (data is Timestamp) {
+      dataFinalizacao = data.toDate();
+    } else if (data is String) {
+      dataFinalizacao = DateTime.tryParse(data) ?? DateTime.now();
+    } else {
+      dataFinalizacao = DateTime.now();
+    }
+
     return RouteHistoryModel(
       id: map['id'] ?? '',
       rotaId: map['rotaId'] ?? '',
@@ -61,8 +75,7 @@ class RouteHistoryModel {
       trechosValidados: map['trechosValidados'] ?? '',
       progresso: (map['progresso'] as num?)?.toDouble() ?? 0.0,
       status: map['status'] ?? '',
-      dataFinalizacao:
-          DateTime.tryParse(map['dataFinalizacao'] ?? '') ?? DateTime.now(),
+      dataFinalizacao: dataFinalizacao,
     );
   }
 }

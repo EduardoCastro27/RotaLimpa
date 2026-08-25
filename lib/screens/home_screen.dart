@@ -54,14 +54,6 @@ class HomeScreen extends StatelessWidget {
               },
             ),
             _DashboardCard(
-              title: 'Mapa ao Vivo',
-              subtitle: 'Acompanhar rota em andamento',
-              icon: Icons.map,
-              onTap: () {
-                Navigator.pushNamed(context, AppRoutes.driverMap);
-              },
-            ),
-            _DashboardCard(
               title: 'Relatórios',
               subtitle: 'Consultar desempenho da coleta',
               icon: Icons.bar_chart,
