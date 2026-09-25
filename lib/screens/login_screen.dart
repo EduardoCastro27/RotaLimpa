@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../app/app_routes.dart';
@@ -47,9 +48,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (modoCadastro) {
-        await authService.cadastrar(email: email, senha: senha);
+        await authService.cadastrar(
+          email: email,
+          senha: senha,
+        );
       } else {
-        await authService.login(email: email, senha: senha);
+        await authService.login(
+          email: email,
+          senha: senha,
+        );
       }
 
       if (!mounted) return;
@@ -61,8 +68,29 @@ class _LoginScreenState extends State<LoginScreen> {
           'email': email,
         },
       );
+    } on FirebaseAuthException catch (e) {
+      debugPrint('====================================');
+      debugPrint('ERRO DO FIREBASE AUTH');
+      debugPrint('Código: ${e.code}');
+      debugPrint('Mensagem: ${e.message}');
+      debugPrint('====================================');
+
+      if (!mounted) return;
+
+      mostrarMensagem(
+        'Erro Firebase: ${e.code}',
+      );
     } catch (e) {
-      mostrarMensagem(tratarErroFirebase(e.toString()));
+      debugPrint('====================================');
+      debugPrint('ERRO DESCONHECIDO');
+      debugPrint(e.toString());
+      debugPrint('====================================');
+
+      if (!mounted) return;
+
+      mostrarMensagem(
+        'Erro: $e',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -72,37 +100,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  String tratarErroFirebase(String erro) {
-    if (erro.contains('user-not-found')) {
-      return 'Usuário não encontrado.';
-    }
-
-    if (erro.contains('wrong-password')) {
-      return 'Senha incorreta.';
-    }
-
-    if (erro.contains('email-already-in-use')) {
-      return 'Este e-mail já está cadastrado.';
-    }
-
-    if (erro.contains('invalid-email')) {
-      return 'E-mail inválido.';
-    }
-
-    if (erro.contains('weak-password')) {
-      return 'Senha muito fraca.';
-    }
-
-    if (erro.contains('invalid-credential')) {
-      return 'E-mail ou senha inválidos.';
-    }
-
-    return 'Erro ao autenticar. Verifique os dados e tente novamente.';
-  }
-
   void mostrarMensagem(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), backgroundColor: AppColors.primary),
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: AppColors.primary,
+      ),
     );
   }
 
@@ -141,10 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text(
                     'Gestão inteligente de coleta urbana',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textDark),
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                    ),
                   ),
                   const SizedBox(height: 32),
-
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -154,9 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
                   TextField(
                     controller: senhaController,
                     obscureText: true,
@@ -166,9 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -182,12 +182,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : Text(modoCadastro ? 'Cadastrar' : 'Entrar'),
+                          : Text(
+                              modoCadastro ? 'Cadastrar' : 'Entrar',
+                            ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   TextButton(
                     onPressed: carregando
                         ? null
